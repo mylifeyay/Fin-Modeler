@@ -8,7 +8,7 @@ Built for a book-style foldable: a single-column layout on the folded cover scre
 
 - **No server, no calls.** After the app loads it makes no network requests. No analytics, telemetry, fonts, or CDNs. Production builds ship a Content-Security-Policy that blocks every origin but the app's own.
 - **Local storage only.** The plan lives in IndexedDB, with a localStorage fallback. Preferences and the passcode hash live in localStorage.
-- **No personal data in this repository.** First launch loads a clearly labelled `Sample Preset` of generic round numbers. `Reset to Sample` and `Clear to Blank` are under **Vault**.
+- **No personal data in this repository.** First launch loads a clearly labelled `Sample Preset` of generic round numbers. A guided setup builds your own plan in eight steps and saves nothing until you finish. `Reset to Sample` and `Clear to Blank` are under **Vault**.
 - **Backups you control.** Export plain JSON, or an AES-256-GCM `.enc.json` sealed with a password (PBKDF2-SHA-256 key derivation, Web Crypto). Export the year-by-year projection as CSV. On iPhone the share sheet saves to Files or iCloud Drive.
 - **App lock.** Optional 4 to 8 digit passcode, stored as a salted PBKDF2-SHA-256 hash, plus optional Face ID / Touch ID unlock through a device-bound WebAuthn passkey.
 - **Privacy Blur.** The eye in the top bar blurs every monetary value across cards, charts and tables.

@@ -1,6 +1,6 @@
-import { Briefcase, Building2, Coins, Landmark, Receipt, User, Wallet, type LucideIcon } from 'lucide-react';
+import { Briefcase, Building2, Coins, Landmark, Receipt, User, Wallet, Wand2, type LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { Card, Chevron, Money, Note } from '../components/ui';
+import { Button, Card, Chevron, Money, Note } from '../components/ui';
 import { BLANK_LABEL, SAMPLE_LABEL } from '../engine/defaults';
 import { useApp, type DetailId } from '../store/context';
 import { useDetailNav } from '../store/useDetailNav';
@@ -24,17 +24,21 @@ function Section({ id, icon: Icon, title, summary }: { id: DetailId; icon: Lucid
 }
 
 export function PlanView() {
-  const { plan } = useApp();
+  const { plan, setWizard } = useApp();
+  const custom = !plan.label.startsWith(SAMPLE_LABEL) && plan.label !== BLANK_LABEL;
   const { profile, liquid: l, statutory: st, property: pr, income, tax, expenses: ex } = plan;
   const liquid = l.cash.balance + l.domEq.balance + l.forEq.balance * l.forEq.fxRate + l.bonds.balance + l.alt.balance * (1 - l.alt.haircut / 100);
   return (
     <div className="anim-rise space-y-3">
       {plan.label.startsWith(SAMPLE_LABEL) && (
         <Note>
-          You are looking at the <strong className="text-fg">Sample Preset</strong>: generic round numbers for exploring. Replace them with your own, or start from blank under Vault.
+          You are looking at the <strong className="text-fg">Sample Preset</strong>: generic round numbers for exploring. The guided setup replaces them with your own in eight short steps.
         </Note>
       )}
-      {plan.label === BLANK_LABEL && <Note>Blank plan. Fill in each section. Everything you type stays on this device.</Note>}
+      {plan.label === BLANK_LABEL && <Note>Blank plan. Use the guided setup, or fill in each section below. Everything you type stays on this device.</Note>}
+      <Button icon={Wand2} variant={custom ? 'secondary' : 'primary'} className="w-full" onClick={() => setWizard(true)}>
+        {custom ? 'Walk through my plan again' : 'Start guided setup'}
+      </Button>
       <Section id="edit-profile" icon={User} title="Profile & assumptions" summary={`Age ${profile.currentAge} · retire ${profile.retireAge} · plan to ${profile.endAge} · ${plan.macro.inflation}% inflation`} />
       <Section
         id="edit-liquid"

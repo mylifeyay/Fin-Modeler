@@ -1,7 +1,8 @@
-import { Building2, Hourglass, Landmark, Receipt, Target, TrendingUp, Wallet, type LucideIcon } from 'lucide-react';
+import { Building2, Hourglass, Landmark, Receipt, Target, TrendingUp, Wallet, Wand2, type LucideIcon } from 'lucide-react';
+import { BLANK_LABEL, SAMPLE_LABEL } from '../engine/defaults';
 import type { ReactNode } from 'react';
 import { TimeChart, type ChartMarker } from '../components/charts/TimeChart';
-import { Card, Eyebrow, Money, Pill, SectionTitle, Segmented, Slider, Toggle, type Tone } from '../components/ui';
+import { Button, Card, Eyebrow, Money, Pill, SectionTitle, Segmented, Slider, Toggle, type Tone } from '../components/ui';
 import type { BridgeStatus } from '../engine/analysis';
 import { effectiveSaleYear, tenancyEndYear } from '../engine/simulate';
 import type { BonusScenario } from '../engine/types';
@@ -28,7 +29,7 @@ function Kpi({ id, icon: Icon, label, children, sub }: { id: DetailId; icon: Luc
 }
 
 export function OverviewView() {
-  const { plan, projection, bridge, mc, settings, update, startYear } = useApp();
+  const { plan, projection, bridge, mc, settings, update, startYear, setWizard } = useApp();
   const adj = useAdjust();
   const nav = useDetailNav();
   const { profile, statutory: st, property: pr, expenses: ex } = plan;
@@ -52,6 +53,17 @@ export function OverviewView() {
 
   return (
     <div className="anim-rise">
+      {(plan.label.startsWith(SAMPLE_LABEL) || plan.label === BLANK_LABEL) && (
+        <div className="card mb-3 !flex items-center justify-between gap-3 !p-3.5">
+          <div className="min-w-0 pl-1">
+            <div className="text-[14px] font-semibold text-fg">{plan.label === BLANK_LABEL ? 'Your plan is blank' : 'These are sample figures'}</div>
+            <div className="mt-0.5 text-[12px] leading-snug text-fg3">Build your own in eight short steps.</div>
+          </div>
+          <Button icon={Wand2} variant="primary" className="shrink-0 !min-h-[40px] !px-3.5 !text-[14px]" onClick={() => setWizard(true)}>
+            Set up
+          </Button>
+        </div>
+      )}
       <Card onClick={() => nav.open('networth')} selected={nav.split && nav.active === 'networth'} label="Net worth breakdown" className="!p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">

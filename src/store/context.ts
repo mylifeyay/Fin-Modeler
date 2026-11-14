@@ -72,6 +72,9 @@ export interface AppState {
   setDetail: (detail: DetailId | null) => void;
   notify: (message: string) => void;
   toast: string | null;
+  /** The guided setup is open. It edits a draft and only replaces the plan on finish. */
+  wizard: boolean;
+  setWizard: (open: boolean) => void;
 }
 
 export const AppContext = createContext<AppState | null>(null);

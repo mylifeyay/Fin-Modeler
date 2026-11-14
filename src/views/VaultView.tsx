@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Download, Eraser, FileLock2, FileSpreadsheet, Fingerprint, Info, KeyRound, Lock, RotateCcw, Upload } from 'lucide-react';
+import { Download, Eraser, FileLock2, FileSpreadsheet, Fingerprint, Info, KeyRound, Lock, RotateCcw, Upload, Wand2 } from 'lucide-react';
 import { PIN_MAX, PIN_MIN } from '../components/LockScreen';
 import { Button, Card, Chevron, Group, Note, Segmented, TextField, Toggle } from '../components/ui';
 import { projectionToCsv } from '../engine/csv';
@@ -36,7 +36,7 @@ function ConfirmButton({ label, confirmLabel, icon, onConfirm }: { label: string
 }
 
 function DataSection() {
-  const { plan, projection, settings, replacePlan, notify, startYear } = useApp();
+  const { plan, projection, settings, replacePlan, notify, startYear, setWizard } = useApp();
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [encrypting, setEncrypting] = useState(false);
   const [password, setPassword] = useState('');
@@ -175,8 +175,11 @@ function DataSection() {
         </div>
       </Group>
 
-      <Group title="Start over" note="Both replace the current plan on this device. Export a backup first if you want to keep it.">
+      <Group title="Start over" note="Guided setup saves nothing until you finish. Reset and Clear replace the current plan at once. Export a backup first if you want to keep it.">
         <div className="grid gap-2 py-2">
+          <Button icon={Wand2} variant="primary" className="w-full" onClick={() => setWizard(true)}>
+            Guided setup
+          </Button>
           <ConfirmButton
             icon={RotateCcw}
             label="Reset to Sample"

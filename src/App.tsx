@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react';
 import { LockScreen } from './components/LockScreen';
+import { SetupWizard } from './components/SetupWizard';
 import { BarActions, BottomNav, Brand, Logo, NavRail, Sheet, Toast } from './components/Shell';
 import { DETAILS } from './details/registry';
 import { useLayoutMode } from './hooks/useViewport';
@@ -43,8 +44,8 @@ function CoverShell({ rail }: { rail: boolean }) {
             <BarActions />
           </div>
         </header>
-        <main key={tab} className={`scroll-y min-h-0 flex-1 px-4 pt-4 ${rail ? 'safe-right' : 'safe-left safe-right'}`}>
-          <div className="mx-auto max-w-[560px]" style={{ paddingBottom: rail ? 'calc(env(safe-area-inset-bottom, 0px) + 24px)' : 'calc(env(safe-area-inset-bottom, 0px) + 84px)' }}>
+        <main key={tab} className={`scroll-y min-h-0 flex-1 pt-4 ${rail ? 'safe-right' : 'safe-left safe-right'}`}>
+          <div className="mx-auto max-w-[592px] px-4" style={{ paddingBottom: rail ? 'calc(env(safe-area-inset-bottom, 0px) + 24px)' : 'calc(env(safe-area-inset-bottom, 0px) + 84px)' }}>
             <View />
           </div>
         </main>
@@ -108,12 +109,12 @@ function SplitShell() {
 }
 
 export default function App() {
-  const { ready, locked } = useApp();
+  const { ready, locked, wizard } = useApp();
   const mode = useLayoutMode();
   return (
     <>
       <div className="app-backdrop" aria-hidden />
-      {!ready ? <Splash /> : locked ? <LockScreen /> : mode === 'split' ? <SplitShell /> : <CoverShell rail={mode === 'cover-wide'} />}
+      {!ready ? <Splash /> : locked ? <LockScreen /> : wizard ? <SetupWizard /> : mode === 'split' ? <SplitShell /> : <CoverShell rail={mode === 'cover-wide'} />}
       <Toast />
     </>
   );

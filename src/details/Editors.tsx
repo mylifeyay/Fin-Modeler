@@ -7,7 +7,7 @@ import { BUCKET_LABEL } from '../lib/colors';
 import { useApp } from '../store/context';
 
 /** Numeric field bound to one path of the plan. */
-function N({
+export function N({
   label,
   get,
   set,
