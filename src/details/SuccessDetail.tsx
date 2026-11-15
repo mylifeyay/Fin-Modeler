@@ -29,7 +29,7 @@ export function SuccessDetail() {
             <div className="num text-[40px] leading-none font-semibold tracking-[-0.03em] text-fg">{percent(r.successRate, 1)}</div>
             <div className="mt-1.5 text-[13px] text-fg2">of paths never run out of accessible money by age {profile.endAge}</div>
           </div>
-          <Pill tone={tone}>{tone === 'good' ? 'Robust' : tone === 'warning' ? 'Exposed' : 'Fragile'}</Pill>
+          <Pill tone={tone}>{tone === 'good' ? 'Looking good' : tone === 'warning' ? 'A bit exposed' : 'Needs attention'}</Pill>
         </div>
       </div>
 

@@ -1,7 +1,9 @@
-import type { ComponentType } from 'react';
+import { useEffect, useState, type ComponentType } from 'react';
 import { LockScreen } from './components/LockScreen';
 import { SetupWizard } from './components/SetupWizard';
-import { BarActions, BottomNav, Brand, Logo, NavRail, Sheet, Toast } from './components/Shell';
+import { Confetti } from './components/Friendly';
+import { Mascot } from './components/Mascot';
+import { BarActions, BottomNav, Brand, NavRail, Sheet, Toast } from './components/Shell';
 import { DETAILS } from './details/registry';
 import { useLayoutMode } from './hooks/useViewport';
 import { useApp, type Tab } from './store/context';
@@ -20,10 +22,20 @@ const VIEWS: Record<Tab, ComponentType> = {
   vault: VaultView,
 };
 
+/** Mounts the confetti for one burst, then removes it. */
+function PartyBurst() {
+  const [on, setOn] = useState(true);
+  useEffect(() => {
+    const t = setTimeout(() => setOn(false), 3200);
+    return () => clearTimeout(t);
+  }, []);
+  return on ? <Confetti /> : null;
+}
+
 function Splash() {
   return (
     <div className="relative z-10 grid h-full place-items-center">
-      <Logo size={64} />
+      <Mascot mood="calm" size={96} className="anim-pop" />
     </div>
   );
 }
@@ -109,13 +121,14 @@ function SplitShell() {
 }
 
 export default function App() {
-  const { ready, locked, wizard } = useApp();
+  const { ready, locked, wizard, party } = useApp();
   const mode = useLayoutMode();
   return (
     <>
       <div className="app-backdrop" aria-hidden />
       {!ready ? <Splash /> : locked ? <LockScreen /> : wizard ? <SetupWizard /> : mode === 'split' ? <SplitShell /> : <CoverShell rail={mode === 'cover-wide'} />}
       <Toast />
+      {party > 0 && <PartyBurst key={party} />}
     </>
   );
 }

@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react';
-import { Activity, Eye, EyeOff, LayoutDashboard, Lock, ShieldCheck, SlidersHorizontal, Table2, X, type LucideIcon } from 'lucide-react';
+import { CalendarRange, Dices, Eye, EyeOff, House, Lock, ShieldCheck, SlidersHorizontal, X, type LucideIcon } from 'lucide-react';
 import { useApp, type Tab } from '../store/context';
 import { IconButton } from './ui';
 
 const TABS: { id: Tab; label: string; icon: LucideIcon }[] = [
-  { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+  { id: 'overview', label: 'Home', icon: House },
   { id: 'plan', label: 'Plan', icon: SlidersHorizontal },
-  { id: 'simulate', label: 'Simulate', icon: Activity },
-  { id: 'ledger', label: 'Ledger', icon: Table2 },
+  { id: 'simulate', label: 'Odds', icon: Dices },
+  { id: 'ledger', label: 'Timeline', icon: CalendarRange },
   { id: 'vault', label: 'Vault', icon: ShieldCheck },
 ];
 

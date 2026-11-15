@@ -1,5 +1,6 @@
 import { Play, Shuffle } from 'lucide-react';
 import { TimeChart, type ChartMarker } from '../components/charts/TimeChart';
+import { Ring } from '../components/Friendly';
 import { Button, Card, Chevron, Eyebrow, Note, Pill, SectionTitle, Segmented, type Tone } from '../components/ui';
 import type { PercentileBands } from '../engine/types';
 import { C } from '../lib/colors';
@@ -61,23 +62,26 @@ export function SimulateView() {
   return (
     <div className="anim-rise">
       <Card onClick={() => nav.open('success')} selected={nav.split && nav.active === 'success'} label="Monte Carlo outcome detail" className="!p-4">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <Eyebrow>Probability of success</Eyebrow>
-            <div className={`num mt-1 text-[44px] leading-none font-semibold tracking-[-0.03em] text-fg transition-opacity ${busy || mc.stale ? 'opacity-50' : ''}`}>{r ? percent(r.successRate, 1) : '—'}</div>
-          </div>
-          <div className="flex flex-col items-end gap-2">
-            <Pill tone={tone}>{!r ? 'Pending' : tone === 'good' ? 'Robust' : tone === 'warning' ? 'Exposed' : 'Fragile'}</Pill>
-            <Chevron />
+        <div className="flex items-center gap-4">
+          <Ring value={r ? r.successRate : null} tone={tone} size={104}>
+            <span className={`num text-[24px] font-bold tracking-[-0.02em] text-fg transition-opacity ${busy || mc.stale ? 'opacity-50' : ''}`}>{r ? percent(r.successRate) : '\u2014'}</span>
+          </Ring>
+          <div className="min-w-0 flex-1">
+            <div className="text-[13px] font-semibold text-fg2">Odds your money lasts</div>
+            <div className="mt-1 text-[15px] leading-snug text-fg">{r ? `${Math.round(r.successRate * 100)} in 100 simulated futures make it to age ${profile.endAge}.` : 'Rolling the dice on thousands of futures\u2026'}</div>
+            <div className="mt-2 flex items-center gap-2">
+              <Pill tone={tone}>{!r ? 'Working on it' : tone === 'good' ? 'Looking good' : tone === 'warning' ? 'A bit exposed' : 'Needs attention'}</Pill>
+              <Chevron />
+            </div>
           </div>
         </div>
         <div className="mt-3 grid grid-cols-2 gap-3 border-t border-line pt-3">
           <div>
-            <div className="text-[12px] text-fg3">Bridge survival</div>
+            <div className="text-[12px] text-fg3">Bridge years survived</div>
             <div className="num mt-0.5 text-[20px] font-semibold text-fg">{r ? (r.bridgeSurvival === null ? 'n/a' : percent(r.bridgeSurvival, 1)) : '—'}</div>
           </div>
           <div>
-            <div className="text-[12px] text-fg3">Paths</div>
+            <div className="text-[12px] text-fg3">Futures simulated</div>
             <div className="num mt-0.5 text-[20px] font-semibold text-fg">{r ? r.runs.toLocaleString('en-US') : '—'}</div>
           </div>
         </div>
@@ -86,7 +90,7 @@ export function SimulateView() {
         </div>
       </Card>
 
-      <SectionTitle>Simulation</SectionTitle>
+      <SectionTitle>Roll again</SectionTitle>
       <div className="card px-4 py-3">
         <Segmented
           label="Number of simulated paths"
@@ -118,7 +122,7 @@ export function SimulateView() {
 
       {r && aligned && (
         <>
-          <SectionTitle>Percentile fans · {settings.real ? 'today’s dollars' : 'nominal'}</SectionTitle>
+          <SectionTitle>Range of futures · {settings.real ? 'today’s dollars' : 'nominal'}</SectionTitle>
           <div className={`space-y-3 transition-opacity ${busy || mc.stale ? 'opacity-60' : ''}`}>
             <Fan title="Accessible net worth" bands={settings.real ? r.accessible.real : r.accessible.nominal} color={C.accessible} ages={r.ages} deterministic={detAcc} markers={markers} />
             <Fan title="Total net worth" bands={settings.real ? r.headline.real : r.headline.nominal} color={C.headline} ages={r.ages} deterministic={detHead} markers={markers} />

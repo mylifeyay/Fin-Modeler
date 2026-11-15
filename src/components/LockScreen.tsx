@@ -4,7 +4,7 @@ import { kvDel, prefs } from '../lib/storage';
 import { verifyPin } from '../security/crypto';
 import { verifyPasskey } from '../security/passkey';
 import { useApp } from '../store/context';
-import { Logo } from './Shell';
+import { Mascot } from './Mascot';
 import { Button } from './ui';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
@@ -61,9 +61,9 @@ export function LockScreen() {
 
   return (
     <div className="safe-top safe-bottom relative z-10 flex h-full flex-col items-center justify-center px-6">
-      <Logo size={56} />
-      <h1 className="mt-4 text-[22px] font-semibold tracking-[-0.01em] text-fg">Fin Modeler is locked</h1>
-      <p className="mt-1 text-center text-[14px] text-fg2">{lock.pin ? 'Enter your passcode.' : 'Unlock with your passkey.'}</p>
+      <Mascot mood={error ? 'worried' : pin.length > 0 ? 'calm' : 'sleepy'} size={88} />
+      <h1 className="mt-3 text-[22px] font-semibold tracking-[-0.01em] text-fg">Fin Modeler is locked</h1>
+      <p className="mt-1 text-center text-[14px] text-fg2">{error ? 'Not quite. Try again.' : lock.pin ? 'Pip is guarding your nest egg. Enter your passcode.' : 'Pip is guarding your nest egg. Unlock with your passkey.'}</p>
 
       {lock.pin && (
         <form

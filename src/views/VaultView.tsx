@@ -352,7 +352,7 @@ export function VaultView() {
             <Info size={19} aria-hidden />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-[15px] font-semibold text-fg">Privacy model & method notes</span>
+            <span className="block text-[15px] font-semibold text-fg">Privacy and how it works</span>
             <span className="mt-0.5 block truncate text-[13px] text-fg3">On-device only. No network, no tracking.</span>
           </span>
           <Chevron />

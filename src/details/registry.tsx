@@ -11,14 +11,14 @@ import { PropertyDetail } from './PropertyDetail';
 import { SuccessDetail } from './SuccessDetail';
 
 export const DETAILS: Record<DetailId, { title: string; Component: ComponentType }> = {
-  networth: { title: 'Net worth breakdown', Component: NetWorthDetail },
-  bridge: { title: 'Early-retirement liquidity bridge', Component: BridgeDetail },
-  success: { title: 'Monte Carlo outcomes', Component: SuccessDetail },
-  property: { title: 'Property: hold vs sell', Component: PropertyDetail },
-  locked: { title: 'Statutory accounts', Component: LockedDetail },
-  cashflow: { title: 'Cash-flow reconciliation', Component: CashflowDetail },
+  networth: { title: 'Where your money sits', Component: NetWorthDetail },
+  bridge: { title: 'The bridge years', Component: BridgeDetail },
+  success: { title: 'Your odds, in detail', Component: SuccessDetail },
+  property: { title: 'Keep or sell the property', Component: PropertyDetail },
+  locked: { title: 'Locked retirement savings', Component: LockedDetail },
+  cashflow: { title: 'Money in, money out', Component: CashflowDetail },
   tax: { title: 'Tax & tax-deferred top-ups', Component: TaxDetail },
-  ledger: { title: 'Annual cash-flow & net worth bridge', Component: LedgerDetail },
+  ledger: { title: 'Year by year', Component: LedgerDetail },
   'edit-profile': { title: 'Profile & assumptions', Component: EditProfile },
   'edit-liquid': { title: 'Liquid assets', Component: EditLiquid },
   'edit-statutory': { title: 'Statutory retirement accounts', Component: EditStatutory },
@@ -26,5 +26,5 @@ export const DETAILS: Record<DetailId, { title: string; Component: ComponentType
   'edit-income': { title: 'Income', Component: EditIncome },
   'edit-tax': { title: 'Tax & tax-deferred top-ups', Component: EditTax },
   'edit-expenses': { title: 'Expenses', Component: EditExpenses },
-  about: { title: 'Privacy model & method notes', Component: AboutDetail },
+  about: { title: 'Privacy and how it works', Component: AboutDetail },
 };

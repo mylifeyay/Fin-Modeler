@@ -50,6 +50,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [detail, setDetail] = useState<DetailId | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [wizard, setWizard] = useState(false);
+  const [party, setParty] = useState(0);
+  const celebrate = useCallback(() => setParty((n) => n + 1), []);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Hydrate from on-device storage. First launch keeps the sample preset.
@@ -173,6 +175,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     toast,
     wizard,
     setWizard,
+    celebrate,
+    party,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

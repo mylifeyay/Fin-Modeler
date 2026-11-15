@@ -72,6 +72,10 @@ export interface AppState {
   setDetail: (detail: DetailId | null) => void;
   notify: (message: string) => void;
   toast: string | null;
+  /** Fire a short confetti burst. */
+  celebrate: () => void;
+  /** Increments on each celebration. 0 = none yet. */
+  party: number;
   /** The guided setup is open. It edits a draft and only replaces the plan on finish. */
   wizard: boolean;
   setWizard: (open: boolean) => void;

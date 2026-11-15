@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { TimeChart } from '../components/charts/TimeChart';
+import { Mascot } from '../components/Mascot';
 import { Button, Group, Money, Note, Pill, Row, Slider, type Tone } from '../components/ui';
 import { analyzeBridge, type BridgeAnalysis, type BridgeStatus } from '../engine/analysis';
 import { project } from '../engine/simulate';
@@ -69,12 +70,15 @@ export function BridgeDetail() {
     <div>
       <div className="card p-4">
         <div className="flex items-center justify-between gap-3">
-          <Pill tone={TONE[b.status]}>{b.status === 'none' ? 'No bridge' : b.status === 'funded' ? 'Funded' : b.status === 'tight' ? 'Tight' : 'Fails'}</Pill>
+          <Pill tone={TONE[b.status]}>{b.status === 'none' ? 'No gap' : b.status === 'funded' ? 'Covered' : b.status === 'tight' ? 'Tight' : 'Short'}</Pill>
           <span className="num text-[13px] text-fg2">
             Age {b.fromAge} → {b.toAge}
           </span>
         </div>
-        <p className="mt-2.5 text-[14px] leading-snug text-fg">{verdict(b)}</p>
+        <div className="mt-2.5 flex items-center gap-3">
+          <Mascot mood={b.status === 'funded' ? 'happy' : b.status === 'tight' ? 'worried' : b.status === 'fails' ? 'sad' : 'calm'} size={56} />
+          <p className="text-[14px] leading-snug text-fg">{verdict(b)}</p>
+        </div>
         {mc.result && mc.result.bridgeSurvival !== null && !dirty && (
           <p className="mt-1.5 text-[13px] text-fg2">
             Monte Carlo: <span className="num font-semibold text-fg">{percent(mc.result.bridgeSurvival, 1)}</span> of {mc.result.runs.toLocaleString('en-US')} paths survive the bridge.

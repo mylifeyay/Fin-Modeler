@@ -50,7 +50,7 @@ const TONE_COLOR: Record<Tone, string> = { good: 'var(--good)', warning: 'var(--
 export function Pill({ tone, children }: { tone: Tone; children: ReactNode }) {
   const Icon = TONE_ICON[tone];
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-raised py-1 pr-2.5 pl-2 text-[12px] font-semibold text-fg">
+    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-line bg-raised py-1 pr-2.5 pl-2 text-[12px] font-semibold whitespace-nowrap text-fg">
       <Icon size={14} strokeWidth={2.4} style={{ color: TONE_COLOR[tone] }} aria-hidden />
       {children}
     </span>

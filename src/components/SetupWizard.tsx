@@ -9,6 +9,7 @@ import { useLayoutMode } from '../hooks/useViewport';
 import { BUCKET_LABEL, C } from '../lib/colors';
 import { AppContext, useAdjust, useApp, type AppState } from '../store/context';
 import { TimeChart, type ChartMarker } from './charts/TimeChart';
+import { Says } from './Friendly';
 import { Button, Eyebrow, Grid2, Group, Money, Note, Pill, Row, Segmented, Slider, TextField, Toggle, type Tone } from './ui';
 
 const BRIDGE_TONE: Record<BridgeStatus, Tone> = { none: 'neutral', funded: 'good', tight: 'warning', fails: 'critical' };
@@ -19,9 +20,9 @@ const BRIDGE_LABEL: Record<BridgeStatus, string> = { none: 'No bridge needed', f
 function StepWelcome({ fromCurrent }: { fromCurrent: boolean }) {
   return (
     <div>
-      <p className="text-[15px] leading-relaxed text-fg2">
-        Eight short steps build your plan from scratch. Round estimates are enough. You can skip any step and refine every number later under <strong className="text-fg">Plan</strong>.
-      </p>
+      <Says mood="wave" size={84}>
+        <span className="font-semibold">Hi, I’m Pip, your nest egg.</span> <span className="text-fg2">Eight short steps and we’ll have your plan. Rough numbers are fine. Skip anything you like and tidy up later under Plan.</span>
+      </Says>
       <Group title="Have these to hand">
         <ul className="list-disc space-y-1.5 py-2 pl-4 text-[14px] leading-snug text-fg2">
           <li>Monthly salary and a typical bonus</li>
@@ -338,11 +339,13 @@ function Preview() {
 }
 
 function StepReview({ showPreview }: { showPreview: boolean }) {
+  const { projection } = useApp();
   return (
     <div>
-      <p className="text-[15px] leading-relaxed text-fg2">
-        This is the deterministic path on expected returns. Tap <strong className="text-fg">Finish</strong> to save it as your plan. The Monte Carlo simulation then runs automatically under Simulate.
-      </p>
+      <Says mood={projection.firstShortfallAge !== null ? 'worried' : 'party'} size={84}>
+        <span className="font-semibold">{projection.firstShortfallAge !== null ? 'We have a plan, with a gap to fix.' : 'Look at that. A plan!'}</span>{' '}
+        <span className="text-fg2">This is the expected path. Tap Finish to save it, then check your odds under the Odds tab.</span>
+      </Says>
       {showPreview && (
         <div className="mt-4">
           <Preview />
@@ -362,15 +365,15 @@ interface Step {
 }
 
 const STEPS: Step[] = [
-  { id: 'welcome', title: 'Set up your plan', render: ({ fromCurrent }) => <StepWelcome fromCurrent={fromCurrent} /> },
-  { id: 'you', title: 'You and your timeline', render: () => <StepYou /> },
-  { id: 'income', title: 'Income', render: () => <StepIncome /> },
-  { id: 'spending', title: 'Spending', render: () => <StepSpending /> },
-  { id: 'liquid', title: 'Savings and investments', render: () => <StepLiquid /> },
-  { id: 'statutory', title: 'Statutory accounts', render: () => <StepStatutory /> },
-  { id: 'property', title: 'Property', render: () => <StepProperty /> },
+  { id: 'welcome', title: 'Let’s build your plan', render: ({ fromCurrent }) => <StepWelcome fromCurrent={fromCurrent} /> },
+  { id: 'you', title: 'First, about you', render: () => <StepYou /> },
+  { id: 'income', title: 'What comes in', render: () => <StepIncome /> },
+  { id: 'spending', title: 'What goes out', render: () => <StepSpending /> },
+  { id: 'liquid', title: 'What you’ve put away', render: () => <StepLiquid /> },
+  { id: 'statutory', title: 'Locked retirement savings', render: () => <StepStatutory /> },
+  { id: 'property', title: 'Your property', render: () => <StepProperty /> },
   { id: 'tax', title: 'Tax and top-ups', render: () => <StepTax /> },
-  { id: 'review', title: 'Review', render: ({ split }) => <StepReview showPreview={!split} /> },
+  { id: 'review', title: 'Your plan', render: ({ split }) => <StepReview showPreview={!split} /> },
 ];
 
 /**
@@ -415,6 +418,7 @@ export function SetupWizard() {
     app.setWizard(false);
     app.setTab('overview');
     app.notify('Plan saved on this device');
+    app.celebrate();
   };
 
   const current = STEPS[step];

@@ -396,3 +396,132 @@ button.card:active {
 .safe-right {
   padding-right: env(safe-area-inset-right, 0px);
 }
+
+/* ---------- Friendly layer: rounded type, Pip the nest egg, small celebrations ---------- */
+:root {
+  /* SF Pro Rounded on Apple devices. A system font, so nothing is downloaded. */
+  --font-sans: ui-rounded, 'SF Pro Rounded', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'Segoe UI', Roboto, sans-serif;
+  --glow-c: rgba(213, 81, 129, 0.1);
+}
+:root[data-theme='light'] {
+  --bg: #f6f3ec;
+  --bar: rgba(246, 243, 236, 0.8);
+  --glow-c: rgba(232, 123, 164, 0.12);
+}
+
+.app-backdrop {
+  background:
+    radial-gradient(60% 42% at 12% 0%, var(--glow-a), transparent 70%),
+    radial-gradient(52% 38% at 96% 12%, var(--glow-b), transparent 72%),
+    radial-gradient(48% 34% at 70% 100%, var(--glow-c), transparent 72%), var(--bg);
+}
+
+.card {
+  border-radius: 26px;
+}
+
+@keyframes pip-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-3px) rotate(-1.5deg);
+  }
+}
+@keyframes pip-breathe {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  50% {
+    transform: scale(1.02, 0.98);
+  }
+}
+@keyframes pip-blink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.1);
+  }
+}
+@keyframes pip-wave {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(14deg);
+  }
+}
+@keyframes pip-z {
+  0% {
+    opacity: 0;
+    transform: translate(-3px, 4px);
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(3px, -5px);
+  }
+}
+.mascot {
+  overflow: visible;
+}
+.mascot-body {
+  transform-box: fill-box;
+  transform-origin: 50% 90%;
+  animation: pip-bob 3.2s ease-in-out infinite;
+}
+.mascot-sleep .mascot-body {
+  animation: pip-breathe 3.6s ease-in-out infinite;
+}
+.mascot-eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pip-blink 4.4s ease-in-out infinite;
+}
+.mascot-arm {
+  transform-box: fill-box;
+  transform-origin: 0% 100%;
+  animation: pip-wave 0.9s ease-in-out infinite;
+}
+.mascot-z {
+  animation: pip-z 2.8s ease-in-out infinite;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translate3d(0, -10vh, 0) rotate(0deg);
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--drift, 0px), 105vh, 0) rotate(var(--spin, 540deg));
+    opacity: 0;
+  }
+}
+.confetti {
+  animation: confetti-fall 2s cubic-bezier(0.3, 0.6, 0.6, 1) both;
+}
+
+@keyframes pop-in {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.anim-pop {
+  animation: pop-in 520ms var(--ease-spring) both;
+}
