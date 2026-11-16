@@ -95,7 +95,7 @@ function StepIncome() {
         </div>
       </Group>
       <Group title="Other income" note="Side work, royalties, anything outside salary. Rent and dividends are picked up in later steps.">
-        <N label="Amount per year" money get={(p) => p.income.secondaryAnnual} set={(d, v) => (d.income.secondaryAnnual = v)} />
+        <N tally="income.secondary" tallyHint="e.g. Freelance work" label="Amount per year" money get={(p) => p.income.secondaryAnnual} set={(d, v) => (d.income.secondaryAnnual = v)} />
       </Group>
     </div>
   );
@@ -108,10 +108,10 @@ function StepSpending() {
   return (
     <div>
       <Group title="Spending today, per month" note="Leave out the mortgage and savings. Both are handled separately.">
-        <Grid2>
-          <N label="Essentials" money get={(p) => p.expenses.baseMonthly} set={(d, v) => (d.expenses.baseMonthly = v)} hint="Food, bills, transport, insurance" />
-          <N label="Discretionary" money get={(p) => p.expenses.discretionaryMonthly} set={(d, v) => (d.expenses.discretionaryMonthly = v)} hint="Travel, dining, hobbies" />
-        </Grid2>
+        <div>
+          <N tally="expenses.base" tallyHint="e.g. Groceries" label="Essentials" money get={(p) => p.expenses.baseMonthly} set={(d, v) => (d.expenses.baseMonthly = v)} hint="Food, bills, transport, insurance" />
+          <N tally="expenses.discretionary" tallyHint="e.g. Dining out" label="Discretionary" money get={(p) => p.expenses.discretionaryMonthly} set={(d, v) => (d.expenses.discretionaryMonthly = v)} hint="Travel, dining, hobbies" />
+        </div>
         <Row label="Total">
           <Money v={monthly} /> / mo
         </Row>
@@ -132,20 +132,20 @@ function StepLiquid() {
   const total = l.cash.balance + l.domEq.balance + l.forEq.balance * l.forEq.fxRate + l.bonds.balance + l.alt.balance * (1 - l.alt.haircut / 100);
   return (
     <div>
-      <Group title="What you hold today" note="Money you could spend or sell within days. Returns and volatility use standard assumptions for now.">
-        <N label={BUCKET_LABEL.cash} money get={(p) => p.liquid.cash.balance} set={(d, v) => (d.liquid.cash.balance = v)} />
-        <N label={BUCKET_LABEL.domEq} money get={(p) => p.liquid.domEq.balance} set={(d, v) => (d.liquid.domEq.balance = v)} hint={`Shares and funds in ${plan.baseCurrency}`} />
-        <N label={BUCKET_LABEL.bonds} money get={(p) => p.liquid.bonds.balance} set={(d, v) => (d.liquid.bonds.balance = v)} />
+      <Group title="What you hold today" note="Several accounts? Tap Add up and list each one. The total fills in for you, and the list is saved so you can update one line later.">
+        <N tally="liquid.cash" tallyHint="e.g. Savings account" label={BUCKET_LABEL.cash} money get={(p) => p.liquid.cash.balance} set={(d, v) => (d.liquid.cash.balance = v)} />
+        <N tally="liquid.domEq" tallyHint="e.g. Brokerage A" label={BUCKET_LABEL.domEq} money get={(p) => p.liquid.domEq.balance} set={(d, v) => (d.liquid.domEq.balance = v)} hint={`Shares and funds in ${plan.baseCurrency}`} />
+        <N tally="liquid.bonds" tallyHint="e.g. Bond fund" label={BUCKET_LABEL.bonds} money get={(p) => p.liquid.bonds.balance} set={(d, v) => (d.liquid.bonds.balance = v)} />
       </Group>
       <Group title="Foreign equities" note="Enter the balance in the foreign currency. The app converts it and models the exchange-rate risk.">
-        <N label={`Balance in ${l.forEq.currency || 'foreign currency'}`} get={(p) => p.liquid.forEq.balance} set={(d, v) => (d.liquid.forEq.balance = v)} />
+        <N tally="liquid.forEq" tallyHint="e.g. Brokerage A" label={`Balance in ${l.forEq.currency || 'foreign currency'}`} get={(p) => p.liquid.forEq.balance} set={(d, v) => (d.liquid.forEq.balance = v)} />
         <Grid2>
           <TextField label="Currency" value={l.forEq.currency} maxLength={3} onChange={(v) => update((d) => void (d.liquid.forEq.currency = v.toUpperCase().replace(/[^A-Z]/g, '')))} />
           <N label={`${plan.baseCurrency} per 1 ${l.forEq.currency || 'unit'}`} get={(p) => p.liquid.forEq.fxRate} set={(d, v) => (d.liquid.forEq.fxRate = v)} min={0.0001} />
         </Grid2>
       </Group>
       <Group title="High-volatility assets" note="Crypto and other alternatives. The haircut is how much of the quoted value you choose not to count.">
-        <N label={BUCKET_LABEL.alt} money get={(p) => p.liquid.alt.balance} set={(d, v) => (d.liquid.alt.balance = v)} />
+        <N tally="liquid.alt" tallyHint="e.g. Exchange wallet" label={BUCKET_LABEL.alt} money get={(p) => p.liquid.alt.balance} set={(d, v) => (d.liquid.alt.balance = v)} />
         <Slider label="Valuation haircut" value={l.alt.haircut} min={0} max={90} step={5} onChange={(v) => update((d) => void (d.liquid.alt.haircut = v))} format={(v) => `${v}%`} />
       </Group>
       <Group title="Total">
@@ -256,7 +256,7 @@ function StepTax() {
   return (
     <div>
       <Group title="Tax-deferred retirement account" note="An SRS-style account. Top-ups cut this year’s tax and are locked until the withdrawal age. Leave both at zero if you have none.">
-        <N label="Balance today" money get={(p) => p.tax.deferredBalance} set={(d, v) => (d.tax.deferredBalance = v)} />
+        <N tally="tax.deferredBalance" label="Balance today" money get={(p) => p.tax.deferredBalance} set={(d, v) => (d.tax.deferredBalance = v)} />
         <Slider
           label="Yearly top-up"
           value={Math.min(tax.deferredContribution, tax.deferredCap)}
@@ -269,7 +269,7 @@ function StepTax() {
         />
       </Group>
       <Group title="Income tax" note={`Progressive resident brackets are preloaded, ${tax.brackets.length} bands up to ${Math.max(...tax.brackets.map((b) => b.rate))}%. Edit them later under Plan.`}>
-        <N label="Yearly personal reliefs" money get={(p) => p.tax.reliefs} set={(d, v) => (d.tax.reliefs = v)} hint="Earned income, dependants and similar. A rough figure is fine." />
+        <N tally="tax.reliefs" tallyHint="e.g. Earned income relief" label="Yearly personal reliefs" money get={(p) => p.tax.reliefs} set={(d, v) => (d.tax.reliefs = v)} hint="Earned income, dependants and similar. A rough figure is fine." />
       </Group>
     </div>
   );

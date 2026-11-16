@@ -179,6 +179,13 @@ export interface ExpenseModel {
   retirementExtraInflation: number;
 }
 
+export interface TallyLine {
+  id: string;
+  label: string;
+  /** Signed. A negative line subtracts from the total. */
+  amount: number;
+}
+
 export interface Plan {
   schema: 1;
   label: string;
@@ -193,6 +200,12 @@ export interface Plan {
   tax: TaxModel;
   expenses: ExpenseModel;
   monteCarlo: { runs: number; seed: number };
+  /**
+   * Optional itemised make-up of a single input, keyed by field id (for
+   * example the separate bank accounts behind the cash balance). Bookkeeping
+   * for the person only: the engine reads the summed field, never these lines.
+   */
+  breakdowns: Record<string, TallyLine[]>;
 }
 
 /** One simulated year. Flows are for the year. Balances are end of year. */

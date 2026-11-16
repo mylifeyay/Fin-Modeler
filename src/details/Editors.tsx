@@ -1,8 +1,10 @@
 import { Plus, Trash2 } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
+import { TallyButton, TallyPanel } from '../components/Tally';
+import { newTallyLine, tallySum } from '../lib/tally';
 import { Button, Grid2, Group, Money, Note, NumField, Row, Segmented, Slider, TextField, Toggle } from '../components/ui';
 import { grossMonthlySalary, monthlyInstalment, tenancyEndYear } from '../engine/simulate';
-import type { AssetBucket, DrawStrategy, LiquidKey, Plan, RetirementSumLock } from '../engine/types';
+import type { AssetBucket, DrawStrategy, LiquidKey, Plan, RetirementSumLock, TallyLine } from '../engine/types';
 import { BUCKET_LABEL } from '../lib/colors';
 import { useApp } from '../store/context';
 
@@ -17,6 +19,8 @@ export function N({
   hint,
   max,
   min,
+  tally,
+  tallyHint = 'e.g. Account A',
 }: {
   label: string;
   get: (p: Plan) => number;
@@ -27,20 +31,62 @@ export function N({
   hint?: ReactNode;
   max?: number;
   min?: number;
+  /** Field id. When set, the number can be built from an itemised list stored with the plan. */
+  tally?: string;
+  /** Placeholder for the first item's label. */
+  tallyHint?: string;
 }) {
   const { plan, update } = useApp();
+  const [open, setOpen] = useState(false);
+  const lines = tally ? (plan.breakdowns[tally] ?? []) : [];
+  const itemised = lines.length > 0;
+  const lo = min ?? (pct ? -100 : 0);
+  const hi = max ?? (pct ? 1000 : 1e12);
+
+  const write = (next: TallyLine[]) => {
+    if (!tally) return;
+    update((d) => {
+      if (next.length === 0) delete d.breakdowns[tally];
+      else d.breakdowns[tally] = next;
+      if (next.length > 0) set(d, Math.min(hi, Math.max(lo, tallySum(next))));
+    });
+  };
+  const toggle = () => {
+    // First open: carry the number already typed into the first line.
+    if (!itemised && !open) write([newTallyLine(get(plan)), newTallyLine()]);
+    setOpen(!open);
+  };
+
   return (
-    <NumField
-      label={label}
-      value={get(plan)}
-      onChange={(v) => update((d) => set(d, v))}
-      prefix={money ? '$' : undefined}
-      suffix={pct ? '%' : suffix}
-      sensitive={money}
-      hint={hint}
-      min={min ?? (pct ? -100 : 0)}
-      max={max ?? (pct ? 1000 : 1e12)}
-    />
+    <>
+      <NumField
+        label={label}
+        value={get(plan)}
+        onChange={(v) => update((d) => set(d, v))}
+        prefix={money ? '$' : undefined}
+        suffix={pct ? '%' : suffix}
+        sensitive={money}
+        hint={itemised && !open ? `Total of ${lines.length} ${lines.length === 1 ? 'item' : 'items'}. Tap to edit them.` : hint}
+        min={lo}
+        max={hi}
+        locked={itemised}
+        onLockedTap={() => setOpen(true)}
+        trailing={tally ? <TallyButton count={lines.length} open={open} onClick={toggle} label={label} /> : undefined}
+      />
+      {tally && open && itemised && (
+        <TallyPanel
+          lines={lines}
+          onChange={write}
+          money={Boolean(money)}
+          unit={!money && suffix ? ` ${suffix}` : undefined}
+          placeholder={tallyHint}
+          onClear={() => {
+            update((d) => void delete d.breakdowns[tally]);
+            setOpen(false);
+          }}
+        />
+      )}
+    </>
   );
 }
 
@@ -93,7 +139,7 @@ function BucketFields({ id, children }: { id: LiquidKey; children?: ReactNode })
   const bucket = (p: Plan): AssetBucket => p.liquid[id];
   return (
     <Group title={BUCKET_LABEL[id]}>
-      <N label={id === 'forEq' ? 'Balance in foreign currency' : 'Balance'} money={id !== 'forEq'} get={(p) => bucket(p).balance} set={(d, v) => (bucket(d).balance = v)} />
+      <N tally={`liquid.${id}`} tallyHint={id === 'cash' ? 'e.g. Savings account' : 'e.g. Brokerage A'} label={id === 'forEq' ? 'Balance in foreign currency' : 'Balance'} money={id !== 'forEq'} get={(p) => bucket(p).balance} set={(d, v) => (bucket(d).balance = v)} />
       <Grid2>
         <N label="Expected return" pct get={(p) => bucket(p).ret} set={(d, v) => (bucket(d).ret = v)} />
         <N label="Volatility" pct get={(p) => bucket(p).vol} set={(d, v) => (bucket(d).vol = v)} min={0} />
@@ -153,7 +199,7 @@ export function EditStatutory() {
         <>
           <Group title="Balances">
             <Grid2>
-              <N label="Ordinary account" money get={(p) => p.statutory.oa} set={(d, v) => (d.statutory.oa = v)} />
+              <N tally="statutory.oa" label="Ordinary account" money get={(p) => p.statutory.oa} set={(d, v) => (d.statutory.oa = v)} />
               <N label="Special account" money get={(p) => p.statutory.sa} set={(d, v) => (d.statutory.sa = v)} />
               <N label="Healthcare account" money get={(p) => p.statutory.ma} set={(d, v) => (d.statutory.ma = v)} />
               <N label="Retirement account" money get={(p) => p.statutory.ra} set={(d, v) => (d.statutory.ra = v)} hint="After the unlock age" />
@@ -331,7 +377,7 @@ export function EditIncome() {
         </Row>
       </Group>
       <Group title="Secondary / royalty income" note="Rental income comes from the property module. Dividends and coupons come from each bucket’s cash yield.">
-        <N label="Annual amount today" money get={(p) => p.income.secondaryAnnual} set={(d, v) => (d.income.secondaryAnnual = v)} />
+        <N tally="income.secondary" tallyHint="e.g. Freelance work" label="Annual amount today" money get={(p) => p.income.secondaryAnnual} set={(d, v) => (d.income.secondaryAnnual = v)} />
         <Grid2>
           <N label="Decay per year" pct get={(p) => p.income.secondaryDecay} set={(d, v) => (d.income.secondaryDecay = v)} max={100} />
           <N label="Final year" get={(p) => p.income.secondaryEndYear} set={(d, v) => (d.income.secondaryEndYear = Math.round(v))} max={2200} hint="0 = no end" />
@@ -347,13 +393,13 @@ export function EditTax() {
   return (
     <div>
       <Group title="Reliefs">
-        <N label="Annual reliefs" money get={(p) => p.tax.reliefs} set={(d, v) => (d.tax.reliefs = v)} hint="Deducted from assessable income, on top of statutory contributions and tax-deferred top-ups" />
+        <N tally="tax.reliefs" tallyHint="e.g. Earned income relief" label="Annual reliefs" money get={(p) => p.tax.reliefs} set={(d, v) => (d.tax.reliefs = v)} hint="Deducted from assessable income, on top of statutory contributions and tax-deferred top-ups" />
       </Group>
       <Group title="Tax-deferred account" note="An SRS-style bucket. Contributions are deductible, growth is untaxed, withdrawals are partly taxable.">
         <Grid2>
           <N label="Annual cap" money get={(p) => p.tax.deferredCap} set={(d, v) => (d.tax.deferredCap = v)} />
           <N label="Annual contribution" money get={(p) => p.tax.deferredContribution} set={(d, v) => (d.tax.deferredContribution = v)} max={tax.deferredCap} />
-          <N label="Balance today" money get={(p) => p.tax.deferredBalance} set={(d, v) => (d.tax.deferredBalance = v)} />
+          <N tally="tax.deferredBalance" label="Balance today" money get={(p) => p.tax.deferredBalance} set={(d, v) => (d.tax.deferredBalance = v)} />
           <N label="Expected return" pct get={(p) => p.tax.deferredReturn} set={(d, v) => (d.tax.deferredReturn = v)} />
           <N label="Volatility" pct get={(p) => p.tax.deferredVol} set={(d, v) => (d.tax.deferredVol = v)} min={0} />
           <N label="Withdraw from age" get={(p) => p.tax.deferredWithdrawAge} set={(d, v) => (d.tax.deferredWithdrawAge = Math.round(v))} max={100} />
@@ -404,10 +450,10 @@ export function EditExpenses() {
   return (
     <div>
       <Group title="Pre-retirement, per month" note="Today’s dollars. Grows with inflation. The mortgage is modelled separately under Property.">
-        <Grid2>
-          <N label="Base living" money get={(p) => p.expenses.baseMonthly} set={(d, v) => (d.expenses.baseMonthly = v)} />
-          <N label="Discretionary" money get={(p) => p.expenses.discretionaryMonthly} set={(d, v) => (d.expenses.discretionaryMonthly = v)} />
-        </Grid2>
+        <div>
+          <N tally="expenses.base" tallyHint="e.g. Groceries" label="Base living" money get={(p) => p.expenses.baseMonthly} set={(d, v) => (d.expenses.baseMonthly = v)} />
+          <N tally="expenses.discretionary" tallyHint="e.g. Dining out" label="Discretionary" money get={(p) => p.expenses.discretionaryMonthly} set={(d, v) => (d.expenses.discretionaryMonthly = v)} />
+        </div>
         <Row label="Total">
           <Money v={monthly} /> / mo
         </Row>
@@ -427,7 +473,7 @@ export function EditExpenses() {
         {ex.retirementMode === 'multiplier' ? (
           <Slider label="Share of pre-retirement spending" value={ex.retirementMultiplier} min={40} max={150} step={5} onChange={(v) => update((d) => void (d.expenses.retirementMultiplier = v))} format={(v) => `${v}%`} />
         ) : (
-          <N label="Monthly budget in retirement" money get={(p) => p.expenses.retirementCustomMonthly} set={(d, v) => (d.expenses.retirementCustomMonthly = v)} hint="Today’s dollars. Leave out work, mortgage and dependant costs. Add travel and healthcare." />
+          <N tally="expenses.retirementCustom" tallyHint="e.g. Groceries" label="Monthly budget in retirement" money get={(p) => p.expenses.retirementCustomMonthly} set={(d, v) => (d.expenses.retirementCustomMonthly = v)} hint="Today’s dollars. Leave out work, mortgage and dependant costs. Add travel and healthcare." />
         )}
         <Row label="Retirement spending">
           <Money v={ex.retirementMode === 'multiplier' ? (monthly * ex.retirementMultiplier) / 100 : ex.retirementCustomMonthly} /> / mo

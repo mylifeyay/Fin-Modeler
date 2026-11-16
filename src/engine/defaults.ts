@@ -127,6 +127,7 @@ export function samplePlan(year: number): Plan {
       retirementExtraInflation: 0.5,
     },
     monteCarlo: { runs: 2000, seed: 12345 },
+    breakdowns: {},
   };
 }
 
@@ -158,6 +159,7 @@ export function blankPlan(year: number): Plan {
     income: { ...s.income, salaryMonthly: 0, bonusLowMonths: 0, bonusBaseMonths: 0, bonusHighMonths: 0, secondaryAnnual: 0, secondaryEndYear: 0 },
     tax: { ...s.tax, reliefs: 0, deferredContribution: 0, deferredBalance: 0 },
     expenses: { ...s.expenses, baseMonthly: 0, discretionaryMonthly: 0, oneOffs: [], retirementCustomMonthly: 0 },
+    breakdowns: {},
   };
 }
 
@@ -203,6 +205,20 @@ export function normalizePlan(input: unknown, year: number): Plan {
     untilYear: typeof o.untilYear === 'number' ? o.untilYear : 0,
     inflate: o.inflate !== false,
   }));
+  plan.breakdowns = {};
+  const rawBreakdowns = isObject(input) && isObject(input.breakdowns) ? input.breakdowns : {};
+  for (const [key, lines] of Object.entries(rawBreakdowns).slice(0, 100)) {
+    if (!/^[a-zA-Z0-9.]{1,60}$/.test(key) || !Array.isArray(lines)) continue;
+    const clean = lines
+      .filter(isObject)
+      .slice(0, 50)
+      .map((l, i) => ({
+        id: typeof l.id === 'string' ? l.id.slice(0, 40) : `line-${i}`,
+        label: typeof l.label === 'string' ? l.label.slice(0, 60) : '',
+        amount: typeof l.amount === 'number' && Number.isFinite(l.amount) ? l.amount : 0,
+      }));
+    if (clean.length > 0) plan.breakdowns[key] = clean;
+  }
   const p = plan.profile;
   p.currentAge = Math.min(94, Math.max(18, Math.round(p.currentAge)));
   p.endAge = Math.min(110, Math.max(p.currentAge + 1, Math.round(p.endAge)));

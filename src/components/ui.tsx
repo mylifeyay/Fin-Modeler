@@ -1,5 +1,6 @@
 import { useState, type CSSProperties, type ReactNode } from 'react';
 import { AlertTriangle, CheckCircle2, ChevronRight, Info, XCircle, type LucideIcon } from 'lucide-react';
+import { evaluate, isExpression } from '../lib/calc';
 import { money } from '../lib/format';
 
 /** A monetary value. Blurred everywhere when Privacy Blur is on. */
@@ -274,6 +275,9 @@ export function NumField({
   max = 1e12,
   hint,
   sensitive,
+  trailing,
+  locked,
+  onLockedTap,
 }: {
   label: string;
   value: number;
@@ -285,10 +289,18 @@ export function NumField({
   hint?: ReactNode;
   /** Monetary input: blurred when Privacy Blur is on and the field is not focused. */
   sensitive?: boolean;
+  /** Control shown at the right end of the field, outside the label. */
+  trailing?: ReactNode;
+  /** The value is derived (an itemised total). Typing is off and a tap calls `onLockedTap`. */
+  locked?: boolean;
+  onLockedTap?: () => void;
 }) {
   const [text, setText] = useState<string | null>(null);
+  const preview = text !== null && isExpression(text) ? evaluate(text) : null;
   return (
-    <label className="block py-1.5">
+    <div className="py-1.5">
+      <div className="flex items-end gap-2">
+    <label className="block min-w-0 flex-1">
       <span className="mb-1 block text-[13px] text-fg2">{label}</span>
       <span className="flex min-h-[46px] items-center gap-1.5 rounded-2xl border border-line bg-raised px-3.5 focus-within:border-accent">
         {prefix && <span className="text-[14px] text-fg3">{prefix}</span>}
@@ -301,16 +313,21 @@ export function NumField({
           enterKeyHint="done"
           className={`num min-w-0 flex-1 bg-transparent py-2 text-[16px] text-fg outline-none ${sensitive && text === null ? 'money' : ''}`}
           value={text ?? display(value)}
+          readOnly={locked}
+          onClick={locked ? onLockedTap : undefined}
           onFocus={(e) => {
+            if (locked) return;
             setText(Number.isFinite(value) && value !== 0 ? String(value) : '');
             requestAnimationFrame(() => e.target.select());
           }}
           onChange={(e) => {
+            if (locked) return;
             const raw = e.target.value;
             setText(raw);
-            const n = Number(raw.replace(/,/g, '').trim());
+            // Accepts a plain number or a sum such as 12000+48500.
+            const n = evaluate(raw);
             if (raw.trim() === '') onChange(Math.max(min, 0));
-            else if (Number.isFinite(n)) onChange(Math.min(max, Math.max(min, n)));
+            else if (n !== null) onChange(Math.min(max, Math.max(min, n)));
           }}
           onBlur={() => setText(null)}
           onKeyDown={(e) => {
@@ -319,8 +336,12 @@ export function NumField({
         />
         {suffix && <span className="text-[14px] text-fg3">{suffix}</span>}
       </span>
-      {hint && <span className="mt-1 block text-[12px] leading-snug text-fg3">{hint}</span>}
     </label>
+        {trailing}
+      </div>
+      {preview !== null && <div className="num mt-1 text-[12px] font-semibold text-fg2">= {display(Math.round(preview * 100) / 100)}</div>}
+      {hint && <div className="mt-1 text-[12px] leading-snug text-fg3">{hint}</div>}
+    </div>
   );
 }
 

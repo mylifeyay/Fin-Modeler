@@ -11,6 +11,7 @@ Built for a book-style foldable: a single-column layout on the folded cover scre
 - **No personal data in this repository.** First launch loads a clearly labelled `Sample Preset` of generic round numbers. A guided setup builds your own plan in eight steps and saves nothing until you finish. `Reset to Sample` and `Clear to Blank` are under **Vault**.
 - **Backups you control.** Export plain JSON, or an AES-256-GCM `.enc.json` sealed with a password (PBKDF2-SHA-256 key derivation, Web Crypto). Export the year-by-year projection as CSV. On iPhone the share sheet saves to Files or iCloud Drive.
 - **App lock.** Optional 4 to 8 digit passcode, stored as a salted PBKDF2-SHA-256 hash, plus optional Face ID / Touch ID unlock through a device-bound WebAuthn passkey.
+- **Numbers from many places.** Balance and spending fields have an "Add up" list: one line per account or bill, lines can subtract, the total fills the field, and the list is saved with the plan. Fields also accept sums such as `12000+48500`.
 - **A friendly face.** Pip the nest egg (an inline SVG, no downloads) reflects how the plan is doing. Type uses the system rounded font.
 - **Privacy Blur.** The eye in the top bar blurs every monetary value across cards, charts and tables.
 
